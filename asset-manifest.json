@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/mentor-hub/static/css/main.6e6900cc.css",
+    "main.js": "/mentor-hub/static/js/main.5765bcdb.js",
+    "index.html": "/mentor-hub/index.html",
+    "main.6e6900cc.css.map": "/mentor-hub/static/css/main.6e6900cc.css.map",
+    "main.5765bcdb.js.map": "/mentor-hub/static/js/main.5765bcdb.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6e6900cc.css",
+    "static/js/main.5765bcdb.js"
+  ]
+}
