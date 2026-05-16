@@ -1,9 +1,784 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Leadias Mentor Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadias Mentor Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0f13; --surface:#17171f; --card:#1e1e28; --border:#2a2a38;
+  --accent:#7c6af7; --accent2:#f7926a; --green:#4ade80; --red:#f87171;
+  --yellow:#fbbf24; --text:#e8e8f0; --muted:#888899; --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+h1,h2,h3,h4{font-family:'Syne',sans-serif;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* LOGIN */
+#loginScreen{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 30% 20%,#2a1f6e33 0%,transparent 60%),
+             radial-gradient(ellipse at 70% 80%,#6e2a1f22 0%,transparent 60%),var(--bg);
+}
+.login-box{
+  background:var(--card);border:1px solid var(--border);border-radius:24px;
+  padding:48px 40px;width:380px;box-shadow:0 32px 80px #00000066;animation:fadeUp 0.5s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:4px;color:var(--accent);margin-bottom:28px;}
+.login-title{font-size:28px;font-weight:800;margin-bottom:6px;}
+.login-sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+.role-tabs{display:flex;gap:8px;margin-bottom:22px;}
+.role-tab{
+  flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+.role-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.fg select,.fg input{
+  width:100%;padding:11px 13px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;
+}
+.fg select:focus,.fg input:focus{border-color:var(--accent);}
+.fg select option{background:var(--surface);}
+.btn-primary{
+  width:100%;padding:13px;background:var(--accent);border:none;border-radius:10px;
+  color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;margin-top:6px;
+}
+.btn-primary:hover{background:#6a58e0;transform:translateY(-1px);}
+.err{color:var(--red);font-size:13px;margin-top:8px;display:none;}
+
+/* TOPNAV */
+.topnav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.nav-logo{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:'Syne',sans-serif;letter-spacing:1px;}
+.nav-badge.admin{background:var(--accent2);}
+.btn-out{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 13px;border-radius:8px;cursor:pointer;font-size:13px;transition:all 0.2s;}
+.btn-out:hover{border-color:var(--red);color:var(--red);}
+
+/* PAGE */
+.page{flex:1;padding:24px 28px;max-width:1200px;margin:0 auto;width:100%;}
+.page-hdr{margin-bottom:22px;}
+.page-title{font-size:24px;font-weight:800;}
+.page-sub{color:var(--muted);font-size:13px;margin-top:4px;}
+
+/* WEEK BAR */
+.week-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.week-bar label{font-size:13px;color:var(--muted);font-weight:500;}
+.week-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.wpill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Syne',sans-serif;}
+.wpill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:12px;margin-bottom:22px;border:1px solid var(--border);width:fit-content;}
+.tab-btn{padding:8px 18px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* BATCH GRID */
+.batch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.batch-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
+}
+.batch-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px #0006;}
+.batch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.batch-card.ob::before{background:var(--accent2);}
+.batch-card.regular::before{background:var(--accent);}
+.btype{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:20px;margin-bottom:8px;font-family:'Syne',sans-serif;}
+.btype.ob{background:#f7926a22;color:var(--accent2);}
+.btype.regular{background:#7c6af722;color:var(--accent);}
+.bname{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px;}
+.bday{color:var(--muted);font-size:12px;margin-bottom:12px;}
+.bstatus{display:flex;flex-direction:column;gap:6px;}
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;background:var(--surface);}
+.status-label{font-size:12px;color:var(--muted);}
+.status-val{font-size:12px;font-weight:700;}
+.status-val.done{color:var(--green);}
+.status-val.notdone{color:var(--red);}
+.status-val.pending{color:var(--yellow);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:#000b;z-index:200;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:680px;margin:auto;animation:fadeUp 0.3s ease;}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
+.modal-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.modal-close{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:22px;}
+.msec{margin-bottom:26px;}
+.msec-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+
+/* TOGGLES */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--surface);margin-bottom:8px;}
+.toggle-label{font-size:13px;color:var(--text);}
+.toggle-btns{display:flex;gap:6px;}
+.tbtn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.tbtn.done{background:#4ade8022;border-color:var(--green);color:var(--green);}
+.tbtn.notdone{background:#f8717122;border-color:var(--red);color:var(--red);}
+
+/* PROMPT */
+.prompt-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.prompt-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end;}
+.prompt-row .fg{flex:1;margin-bottom:0;}
+.btn-gen{padding:11px 16px;background:var(--accent2);border:none;border-radius:9px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.btn-gen:hover{background:#e07a52;}
+.gen-out{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:13px;font-size:13px;line-height:1.7;white-space:pre-wrap;display:none;margin-bottom:10px;max-height:200px;overflow-y:auto;}
+.btn-chatgpt{display:none;padding:9px 15px;background:#10a37f;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;align-items:center;gap:6px;}
+.btn-chatgpt.show{display:inline-flex;}
+
+/* UPLOAD */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.upload-area:hover{border-color:var(--accent);background:#7c6af708;}
+.upload-icon{font-size:28px;margin-bottom:8px;}
+.upload-text{font-size:13px;color:var(--muted);}
+.upload-text span{color:var(--accent);font-weight:600;}
+.resp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:12px;}
+.resp-thumb{border-radius:8px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);text-align:center;padding:6px;position:relative;}
+.resp-thumb img{width:100%;height:100%;object-fit:cover;}
+.del-btn{position:absolute;top:3px;right:3px;background:#000a;border:none;color:var(--red);border-radius:4px;cursor:pointer;padding:1px 5px;font-size:10px;}
+.btn-save{padding:10px 22px;background:var(--green);border:none;border-radius:9px;color:#000;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-save:hover{background:#22c55e;}
+.toast{display:inline-block;margin-left:10px;font-size:13px;color:var(--green);opacity:0;transition:opacity 0.3s;}
+.toast.show{opacity:1;}
+
+/* ADMIN STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:22px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.s-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+.s-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}
+.s-value.green{color:var(--green);}
+.s-value.red{color:var(--red);}
+.s-value.yellow{color:var(--yellow);}
+
+/* ADMIN GRID */
+.grid-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+.admin-grid{border-collapse:collapse;width:100%;min-width:700px;}
+.admin-grid th{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap;background:var(--surface);}
+.admin-grid th.mcol{text-align:left;min-width:110px;padding-left:14px;}
+.admin-grid td{padding:8px;border-bottom:1px solid #1a1a24;text-align:center;vertical-align:middle;}
+.admin-grid tr:last-child td{border-bottom:none;}
+.admin-grid td.mname{text-align:left;font-weight:600;font-size:13px;white-space:nowrap;padding-left:14px;}
+.cell-wrap{display:flex;flex-direction:column;gap:3px;align-items:center;}
+.act-dot{width:26px;height:13px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.act-dot.done{background:#4ade8022;color:var(--green);}
+.act-dot.notdone{background:#f8717122;color:var(--red);}
+.act-dot.pending{background:var(--border);color:var(--muted);}
+.att-dot{width:26px;height:13px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.att-dot.done{background:#60a5fa22;color:#60a5fa;}
+.att-dot.notdone{background:#f8717122;color:var(--red);}
+.att-dot.pending{background:var(--border);color:var(--muted);}
+.grid-legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted);padding:0 4px;}
+.grid-legend span{display:flex;align-items:center;gap:5px;}
+
+/* FLAGGED */
+.flagged-list{display:flex;flex-direction:column;gap:8px;}
+.flag-row{background:var(--card);border-radius:10px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.flag-row.activity{border-left:3px solid var(--red);}
+.flag-row.followup{border-left:3px solid var(--yellow);}
+.fi-name{font-weight:600;font-size:14px;}
+.fi-detail{font-size:12px;color:var(--muted);margin-top:2px;}
+.flag-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:'Syne',sans-serif;letter-spacing:0.5px;white-space:nowrap;}
+.flag-badge.act{background:#f8717122;color:var(--red);}
+.flag-badge.att{background:#fbbf2422;color:var(--yellow);}
+
+/* GALLERY */
+.gallery-filter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.gallery-item{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--surface);aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);text-align:center;padding:8px;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;}
+.gallery-empty{color:var(--muted);font-size:14px;padding:48px;text-align:center;}
+
+@media(max-width:600px){
+  .page{padding:14px;}
+  .batch-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .login-box{width:100%;padding:32px 20px;}
+  .topnav{padding:12px 16px;}
+  .toggle-row{flex-direction:column;align-items:flex-start;gap:8px;}
+}
+</style>
 </head>
 <body>
-  <h1>Mentor Portal - Coming Soon</h1>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">LEADIAS</div>
+    <div class="login-title">Mentor Portal</div>
+    <div class="login-sub">Sign in to continue</div>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole('mentor')">Mentor</button>
+      <button class="role-tab" onclick="setRole('admin')">Admin</button>
+    </div>
+    <div class="fg" id="mentorSelectWrap">
+      <label>Your Name</label>
+      <select id="mentorSel">
+        <option value="">-- Select Mentor --</option>
+        <option>Naresh</option><option>Ashok</option><option>Anjali</option>
+        <option>Bhaskar</option><option>Chitra</option><option>Divya</option>
+        <option>Eswar</option><option>Farida</option><option>Gopal</option>
+        <option>Harini</option><option>Irfan</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>PIN</label>
+      <input type="password" id="pinIn" placeholder="Enter PIN" maxlength="4">
+    </div>
+    <div class="err" id="loginErr">Incorrect credentials. Try again.</div>
+    <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- ══ MENTOR SCREEN ══ -->
+<div id="mentorScreen" class="screen">
+  <div class="topnav">
+    <div class="nav-logo">LEADIAS</div>
+    <div class="nav-right">
+      <span class="nav-badge">MENTOR</span>
+      <span style="font-size:14px;font-weight:500" id="mDisplayName"></span>
+      <button class="btn-out" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="page">
+    <div class="page-hdr">
+      <div class="page-title" id="mGreeting">Hello!</div>
+      <div class="page-sub">Track your activities and follow-ups for each batch.</div>
+    </div>
+    <div class="week-bar">
+      <label>Week:</label>
+      <div class="week-pills" id="mentorWeekPills"></div>
+    </div>
+    <div class="batch-grid" id="batchGrid"></div>
+  </div>
+</div>
+
+<!-- ══ BATCH MODAL ══ -->
+<div class="overlay" id="batchOverlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="mBatchName"></div>
+        <div class="modal-meta" id="mBatchMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="msec">
+        <div class="msec-title">📋 This Week's Status</div>
+        <div class="toggle-row">
+          <span class="toggle-label">Topic Activity Posted?</span>
+          <div class="toggle-btns">
+            <button class="tbtn" id="actYes" onclick="setToggle('act','done')">✓ Posted</button>
+            <button class="tbtn" id="actNo"  onclick="setToggle('act','notdone')">✗ Not Posted</button>
+          </div>
+        </div>
+        <div class="toggle-row" id="habitRow" style="display:none">
+          <span class="toggle-label">Habit Tracker Posted? <span style="font-size:10px;color:var(--accent2);margin-left:4px">OB only</span></span>
+          <div class="toggle-btns">
+            <button class="tbtn" id="habitYes" onclick="setToggle('habit','done')">✓ Posted</button>
+            <button class="tbtn" id="habitNo"  onclick="setToggle('habit','notdone')">✗ Not Posted</button>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Attendance Follow-Up Done?</span>
+          <div class="toggle-btns">
+            <button class="tbtn" id="attYes" onclick="setToggle('att','done')">✓ Done</button>
+            <button class="tbtn" id="attNo"  onclick="setToggle('att','notdone')">✗ Not Done</button>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn-save" onclick="saveStatus()">Save Status</button>
+          <span class="toast" id="statusToast">✓ Saved!</span>
+        </div>
+      </div>
+
+      <div class="msec">
+        <div class="msec-title">🤖 Activity Generator</div>
+        <div class="prompt-box">
+          <div class="prompt-row">
+            <div class="fg">
+              <label>Topic for this session</label>
+              <input type="text" id="topicIn" placeholder="e.g. Growth Mindset, Time Management...">
+            </div>
+            <button class="btn-gen" onclick="generatePrompt()">Generate →</button>
+          </div>
+          <div class="gen-out" id="genOut"></div>
+          <button class="btn-chatgpt" id="chatgptBtn" onclick="copyAndOpen()">📋 Copy & Open ChatGPT</button>
+        </div>
+      </div>
+
+      <div class="msec">
+        <div class="msec-title">📸 Student Responses</div>
+        <div class="upload-area" onclick="document.getElementById('fileIn').click()">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Click to upload photos or screenshots<br><span>Browse files</span></div>
+          <input type="file" id="fileIn" multiple accept="image/*" style="display:none" onchange="handleUpload(event)">
+        </div>
+        <div class="resp-grid" id="respGrid"></div>
+        <div style="margin-top:12px;">
+          <button class="btn-save" onclick="saveResponses()">Save Responses</button>
+          <span class="toast" id="respToast">✓ Saved!</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN SCREEN ══ -->
+<div id="adminScreen" class="screen">
+  <div class="topnav">
+    <div class="nav-logo">LEADIAS</div>
+    <div class="nav-right">
+      <span class="nav-badge admin">ADMIN</span>
+      <span style="font-size:14px;font-weight:500">Manager</span>
+      <button class="btn-out" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="page">
+    <div class="page-hdr">
+      <div class="page-title">Admin Dashboard</div>
+      <div class="page-sub">All 11 mentors · 110 batches · Weekly tracking</div>
+    </div>
+    <div class="week-bar">
+      <label>Week:</label>
+      <div class="week-pills" id="adminWeekPills"></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="switchAdminTab('flagged')">🚨 Flagged</button>
+      <button class="tab-btn" onclick="switchAdminTab('gallery')">📸 Gallery</button>
+    </div>
+    <div class="tab-panel active" id="atab-overview">
+      <div class="stats-row" id="adminStats"></div>
+      <div class="grid-wrap">
+        <table class="admin-grid" id="adminGrid"></table>
+      </div>
+      <div class="grid-legend">
+        <span><span style="display:inline-block;width:26px;height:13px;background:#4ade8022;border-radius:3px;"></span> Green top = Activity posted</span>
+        <span><span style="display:inline-block;width:26px;height:13px;background:#60a5fa22;border-radius:3px;"></span> Blue bottom = Follow-up done</span>
+        <span><span style="display:inline-block;width:26px;height:13px;background:#f8717122;border-radius:3px;"></span> Red = Not done</span>
+        <span><span style="display:inline-block;width:26px;height:13px;background:var(--border);border-radius:3px;"></span> Grey = Pending</span>
+      </div>
+    </div>
+    <div class="tab-panel" id="atab-flagged">
+      <div class="flagged-list" id="flaggedList"></div>
+    </div>
+    <div class="tab-panel" id="atab-gallery">
+      <div class="gallery-filter" id="galleryFilter"></div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+// CONFIG
+// ═══════════════════════════════
+const MENTOR_PIN = '1234';
+const ADMIN_PIN  = '0000';
+const TOTAL_WEEKS = 8;
+
+const MENTOR_NAMES = ['Naresh','Ashok','Anjali','Bhaskar','Chitra','Divya','Eswar','Farida','Gopal','Harini','Irfan'];
+
+const BATCH_TEMPLATE = [
+  {slot:'Mon 7PM', type:'ob',      level:'L4'},
+  {slot:'Mon 8PM', type:'ob',      level:'L5'},
+  {slot:'Tue 7PM', type:'regular', level:'L4'},
+  {slot:'Tue 8PM', type:'regular', level:'L6'},
+  {slot:'Wed 7PM', type:'ob',      level:'L4'},
+  {slot:'Wed 8PM', type:'regular', level:'L5'},
+  {slot:'Thu 7PM', type:'ob',      level:'L4'},
+  {slot:'Thu 8PM', type:'regular', level:'L4'},
+  {slot:'Fri 7PM', type:'regular', level:'L5'},
+  {slot:'Fri 8PM', type:'regular', level:'L4'},
+];
+
+const ALL_MENTORS = MENTOR_NAMES.map((name, i) => {
+  const mNum = String(i+1).padStart(2,'0');
+  return {
+    name, id: mNum,
+    batches: BATCH_TEMPLATE.map((t, j) => ({
+      id: `${mNum}${String(j+1).padStart(2,'0')}`,
+      name: `Batch ${mNum}${String(j+1).padStart(2,'0')}`,
+      type: t.type, level: t.level, day: t.slot
+    }))
+  };
+});
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+function getS()  { return JSON.parse(localStorage.getItem('lp2_state') || '{}'); }
+function setS(s) { localStorage.setItem('lp2_state', JSON.stringify(s)); }
+
+function getBD(bid, week) {
+  const s = getS();
+  return (s[bid] && s[bid][`w${week}`]) || {};
+}
+function setBD(bid, week, data) {
+  const s = getS();
+  if (!s[bid]) s[bid] = {};
+  s[bid][`w${week}`] = { ...(s[bid][`w${week}`] || {}), ...data };
+  setS(s);
+}
+
+// ═══════════════════════════════
+// APP STATE VARS
+// ═══════════════════════════════
+let currentRole  = 'mentor';
+let currentMentor = null;
+let currentBatch  = null;
+let currentWeek   = 1;
+let adminWeek     = 1;
+let currentUploads = [];
+
+// ═══════════════════════════════
+// LOGIN
+// ═══════════════════════════════
+function setRole(r) {
+  currentRole = r;
+  document.querySelectorAll('.role-tab').forEach((t,i) =>
+    t.classList.toggle('active', (i===0&&r==='mentor')||(i===1&&r==='admin')));
+  document.getElementById('mentorSelectWrap').style.display = r==='mentor'?'block':'none';
+}
+
+function doLogin() {
+  const pin  = document.getElementById('pinIn').value;
+  const err  = document.getElementById('loginErr');
+  if (currentRole === 'admin') {
+    if (pin !== ADMIN_PIN) { showErr(err,'Incorrect admin PIN.'); return; }
+    err.style.display='none'; showAdmin();
+  } else {
+    const name = document.getElementById('mentorSel').value;
+    if (!name) { showErr(err,'Please select your name.'); return; }
+    if (pin !== MENTOR_PIN) { showErr(err,'Incorrect PIN.'); return; }
+    err.style.display='none'; showMentor(name);
+  }
+}
+function showErr(el, msg) { el.textContent=msg; el.style.display='block'; }
+document.getElementById('pinIn').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function logout() {
+  ['loginScreen','mentorScreen','adminScreen'].forEach(id =>
+    document.getElementById(id).classList.remove('active'));
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('pinIn').value = '';
+  document.getElementById('mentorSel').value = '';
+}
+
+// ═══════════════════════════════
+// WEEK PILLS
+// ═══════════════════════════════
+function buildWeekPills(containerId, getWeek, setWeekFn) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = Array.from({length:TOTAL_WEEKS},(_,i)=>i+1).map(w =>
+    `<button class="wpill ${w===getWeek()?'active':''}" data-w="${w}"
+      onclick="onWeekClick('${containerId}',${w},${setWeekFn.name})">${w===1?'This Week':'Wk '+w}</button>`
+  ).join('');
+}
+function onWeekClick(containerId, w, fn) {
+  document.querySelectorAll(`#${containerId} .wpill`).forEach(p =>
+    p.classList.toggle('active', parseInt(p.dataset.w)===w));
+  fn(w);
+}
+function setMentorWeek(w) { currentWeek=w; renderBatchGrid(); }
+function setAdminWeek(w)  { adminWeek=w; renderAdminOverview(); renderFlagged(); }
+
+// ═══════════════════════════════
+// MENTOR SCREEN
+// ═══════════════════════════════
+function showMentor(name) {
+  currentMentor = ALL_MENTORS.find(m=>m.name===name);
+  currentWeek   = 1;
+  switchScreen('mentorScreen');
+  const hr = new Date().getHours();
+  const g  = hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  document.getElementById('mGreeting').textContent   = `${g}, ${name}! 👋`;
+  document.getElementById('mDisplayName').textContent = name;
+  buildWeekPills('mentorWeekPills', ()=>currentWeek, setMentorWeek);
+  renderBatchGrid();
+}
+
+function renderBatchGrid() {
+  document.getElementById('batchGrid').innerHTML = currentMentor.batches.map(b => {
+    const d   = getBD(b.id, currentWeek);
+    const act = d.act   || 'pending';
+    const att = d.att   || 'pending';
+    const hab = d.habit || 'pending';
+    return `<div class="batch-card ${b.type}" onclick="openBatch('${b.id}')">
+      <div class="btype ${b.type}">${b.type==='ob'?'⭐ ONBOARDING':'📘 REGULAR'}</div>
+      <div class="bname">${b.name}</div>
+      <div class="bday">Level ${b.level} · ${b.day}</div>
+      <div class="bstatus">
+        <div class="status-row">
+          <span class="status-label">Topic Activity</span>
+          <span class="status-val ${act}">${statusLabel(act)}</span>
+        </div>
+        ${b.type==='ob'?`<div class="status-row">
+          <span class="status-label">Habit Tracker</span>
+          <span class="status-val ${hab}">${statusLabel(hab)}</span>
+        </div>`:''}
+        <div class="status-row">
+          <span class="status-label">Attendance Follow-Up</span>
+          <span class="status-val ${att}">${statusLabel(att,'att')}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function statusLabel(v, type) {
+  if (v==='done')    return type==='att' ? '✓ Done'       : '✓ Posted';
+  if (v==='notdone') return type==='att' ? '✗ Not Done'   : '✗ Not Posted';
+  return '⏳ Pending';
+}
+
+// ═══════════════════════════════
+// BATCH MODAL
+// ═══════════════════════════════
+function openBatch(bid) {
+  currentBatch   = currentMentor.batches.find(b=>b.id===bid);
+  const d        = getBD(bid, currentWeek);
+  currentUploads = (d.responses || []).map(r=>({...r}));
+
+  document.getElementById('mBatchName').textContent = currentBatch.name;
+  document.getElementById('mBatchMeta').textContent =
+    `${currentBatch.type==='ob'?'Onboarding':'Regular'} · Level ${currentBatch.level} · ${currentBatch.day} · Week ${currentWeek}`;
+
+  applyToggleUI('act',   d.act   || 'pending');
+  applyToggleUI('att',   d.att   || 'pending');
+  document.getElementById('habitRow').style.display = currentBatch.type==='ob'?'flex':'none';
+  if (currentBatch.type==='ob') applyToggleUI('habit', d.habit || 'pending');
+
+  renderRespGrid();
+  document.getElementById('topicIn').value = '';
+  document.getElementById('genOut').style.display = 'none';
+  document.getElementById('chatgptBtn').classList.remove('show');
+  document.getElementById('batchOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('batchOverlay').classList.remove('open'); }
+
+function applyToggleUI(type, val) {
+  document.getElementById(`${type}Yes`).className = 'tbtn' + (val==='done'?' done':'');
+  document.getElementById(`${type}No`).className  = 'tbtn' + (val==='notdone'?' notdone':'');
+}
+
+function setToggle(type, val) {
+  const yesEl = document.getElementById(`${type}Yes`);
+  const noEl  = document.getElementById(`${type}No`);
+  const already = (val==='done' && yesEl.classList.contains('done')) ||
+                  (val==='notdone' && noEl.classList.contains('notdone'));
+  applyToggleUI(type, already ? 'pending' : val);
+}
+
+function readToggle(type) {
+  if (document.getElementById(`${type}Yes`).classList.contains('done'))    return 'done';
+  if (document.getElementById(`${type}No`).classList.contains('notdone')) return 'notdone';
+  return 'pending';
+}
+
+function saveStatus() {
+  setBD(currentBatch.id, currentWeek, {
+    act:   readToggle('act'),
+    att:   readToggle('att'),
+    habit: currentBatch.type==='ob' ? readToggle('habit') : undefined
+  });
+  showToast('statusToast');
+  renderBatchGrid();
+}
+
+function saveResponses() {
+  setBD(currentBatch.id, currentWeek, { responses: currentUploads });
+  showToast('respToast');
+}
+
+function showToast(id) {
+  const t = document.getElementById(id);
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════
+// PROMPT GENERATOR
+// ═══════════════════════════════
+function generatePrompt() {
+  const topic = document.getElementById('topicIn').value.trim();
+  if (!topic) { alert('Please enter a topic first!'); return; }
+  const isOB = currentBatch.type === 'ob';
+  const lvl  = currentBatch.level;
+
+  let p = `You are helping a mentor design an engaging activity for Level ${lvl} students (Grade 4–12).\n\nSession Topic: "${topic}"\n\n`;
+  p += `TASK 1 — TOPIC ACTIVITY\nDesign a fun activity related to "${topic}" that students can do and share in their WhatsApp group.\nRequirements:\n• Can be done in 10–15 minutes\n• Clear instructions for what students should do\n• Students share a photo, voice note or typed response in the group\n• Encourages creativity or reflection\n• Appropriate for Level ${lvl}\n\nFormat:\n• Title:\n• Instructions (step by step):\n• What to share in the group:\n• Example student response:`;
+  if (isOB) {
+    p += `\n\nTASK 2 — HABIT TRACKER ACTIVITY (Onboarding batch only)\nCreate a simple daily habit students can track this week, related to "${topic}".\n• What habit to practice each day\n• How to record and share it in the group\n• A short motivational message to post`;
+  }
+
+  document.getElementById('genOut').textContent = p;
+  document.getElementById('genOut').style.display = 'block';
+  document.getElementById('chatgptBtn').classList.add('show');
+}
+
+function copyAndOpen() {
+  navigator.clipboard.writeText(document.getElementById('genOut').textContent)
+    .then(() => window.open('https://chat.openai.com/','_blank'));
+}
+
+// ═══════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════
+function handleUpload(e) {
+  Array.from(e.target.files).forEach(file => {
+    const r = new FileReader();
+    r.onload = ev => { currentUploads.push({name:file.name, data:ev.target.result}); renderRespGrid(); };
+    r.readAsDataURL(file);
+  });
+}
+function renderRespGrid() {
+  document.getElementById('respGrid').innerHTML = currentUploads.map((u,i) =>
+    `<div class="resp-thumb">
+      <img src="${u.data}" alt="${u.name}" onerror="this.parentElement.innerHTML='📄'">
+      <button class="del-btn" onclick="removeUpload(${i})">✕</button>
+    </div>`).join('');
+}
+function removeUpload(i) { currentUploads.splice(i,1); renderRespGrid(); }
+
+// ═══════════════════════════════
+// ADMIN SCREEN
+// ═══════════════════════════════
+function showAdmin() {
+  adminWeek = 1;
+  switchScreen('adminScreen');
+  buildWeekPills('adminWeekPills', ()=>adminWeek, setAdminWeek);
+  renderAdminOverview();
+}
+
+function switchScreen(id) {
+  ['loginScreen','mentorScreen','adminScreen'].forEach(s =>
+    document.getElementById(s).classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function switchAdminTab(tab) {
+  const tabs = ['overview','flagged','gallery'];
+  document.querySelectorAll('#adminScreen .tab-btn').forEach((b,i) =>
+    b.classList.toggle('active', tabs[i]===tab));
+  tabs.forEach(t => document.getElementById(`atab-${t}`).classList.toggle('active', t===tab));
+  if (tab==='flagged') renderFlagged();
+  if (tab==='gallery') renderGallery();
+}
+
+function renderAdminOverview() {
+  let doneAct=0, notAct=0, doneAtt=0, notAtt=0, total=0;
+  ALL_MENTORS.forEach(m => m.batches.forEach(b => {
+    const d = getBD(b.id, adminWeek);
+    total++;
+    if (d.act==='done')    doneAct++;
+    if (d.act==='notdone') notAct++;
+    if (d.att==='done')    doneAtt++;
+    if (d.att==='notdone') notAtt++;
+  }));
+
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-card"><div class="s-label">Activities Posted</div><div class="s-value green">${doneAct}</div></div>
+    <div class="stat-card"><div class="s-label">Not Posted</div><div class="s-value red">${notAct}</div></div>
+    <div class="stat-card"><div class="s-label">Follow-Ups Done</div><div class="s-value green">${doneAtt}</div></div>
+    <div class="stat-card"><div class="s-label">Follow-Ups Pending</div><div class="s-value yellow">${total-doneAtt}</div></div>
+    <div class="stat-card"><div class="s-label">Total Batches</div><div class="s-value">${total}</div></div>
+    <div class="stat-card"><div class="s-label">Mentors</div><div class="s-value">${ALL_MENTORS.length}</div></div>`;
+
+  const batchNums = Array.from({length:10},(_,i)=>i+1);
+  const thead = `<thead><tr>
+    <th class="mcol">Mentor</th>
+    ${batchNums.map(n=>`<th title="Batch ${String(n).padStart(2,'0')}">B${String(n).padStart(2,'0')}</th>`).join('')}
+  </tr></thead>`;
+
+  const tbody = ALL_MENTORS.map(m => {
+    const cells = m.batches.map(b => {
+      const d   = getBD(b.id, adminWeek);
+      const act = d.act || 'pending';
+      const att = d.att || 'pending';
+      const aL  = act==='done'?'✓':act==='notdone'?'✗':'–';
+      const fL  = att==='done'?'✓':att==='notdone'?'✗':'–';
+      return `<td title="${b.name} · ${b.day}">
+        <div class="cell-wrap">
+          <div class="act-dot ${act}">${aL}</div>
+          <div class="att-dot ${att}">${fL}</div>
+        </div>
+      </td>`;
+    }).join('');
+    return `<tr><td class="mname">${m.name}</td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('adminGrid').innerHTML = thead + `<tbody>${tbody}</tbody>`;
+}
+
+function renderFlagged() {
+  const items = [];
+  ALL_MENTORS.forEach(m => m.batches.forEach(b => {
+    const d = getBD(b.id, adminWeek);
+    if (d.act==='notdone') items.push({type:'activity', mentor:m.name, batch:b.name, day:b.day});
+    if (d.att==='notdone') items.push({type:'followup',  mentor:m.name, batch:b.name, day:b.day});
+  }));
+
+  document.getElementById('flaggedList').innerHTML = !items.length
+    ? `<div class="gallery-empty">🎉 No flags for Week ${adminWeek}. All good!</div>`
+    : items.map(f=>`<div class="flag-row ${f.type}">
+        <div>
+          <div class="fi-name">${f.mentor} — ${f.batch} (${f.day})</div>
+          <div class="fi-detail">Week ${adminWeek}</div>
+        </div>
+        <div class="flag-badge ${f.type==='activity'?'act':'att'}">${f.type==='activity'?'ACTIVITY NOT POSTED':'FOLLOW-UP PENDING'}</div>
+      </div>`).join('');
+}
+
+function renderGallery() {
+  const all = [];
+  ALL_MENTORS.forEach(m => m.batches.forEach(b => {
+    Array.from({length:TOTAL_WEEKS},(_,i)=>i+1).forEach(w => {
+      (getBD(b.id,w).responses||[]).forEach(r =>
+        all.push({...r, mentor:m.name, batch:b.name, week:w}));
+    });
+  }));
+
+  const withData = [...new Set(all.map(r=>r.mentor))];
+  document.getElementById('galleryFilter').innerHTML =
+    `<button class="wpill active" onclick="filterGallery('all',this)">All</button>` +
+    withData.map(n=>`<button class="wpill" onclick="filterGallery('${n}',this)">${n}</button>`).join('');
+
+  window._gallery = all;
+  applyGalleryFilter('all');
+}
+
+function filterGallery(mentor, btn) {
+  document.querySelectorAll('#galleryFilter .wpill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  applyGalleryFilter(mentor);
+}
+
+function applyGalleryFilter(mentor) {
+  const data = mentor==='all' ? window._gallery : (window._gallery||[]).filter(r=>r.mentor===mentor);
+  document.getElementById('galleryGrid').innerHTML = !data||!data.length
+    ? `<div class="gallery-empty">No responses uploaded yet.</div>`
+    : data.map(r=>`<div class="gallery-item" title="${r.mentor} · ${r.batch} · Week ${r.week}">
+        <img src="${r.data}" alt="${r.name}" onerror="this.parentElement.textContent='📄 '+this.alt">
+      </div>`).join('');
+}
+</script>
 </body>
 </html>
